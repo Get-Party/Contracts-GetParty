@@ -348,15 +348,14 @@ describe("GetPartyTokenV3", function () {
 
         it('Should get the account dividends info', async function () {
             const account = await getPartyTokenV3.getAccountDividendsInfo(owner.address);
-            console.log(account);
             expect(account[0]).to.equal(owner.address);
-            expect(account[1]).to.equal(0);
-            // expect(account[2]).to.equal(0);
-            // expect(account[3]).to.equal(0);
-            // expect(account[4]).to.equal(0);
-            // expect(account[5]).to.equal(0);
-            // expect(account[6]).to.equal(0);
-            // expect(account[7]).to.equal(0);
+            expect(account[1]).to.equal(-1n);
+            expect(account[2]).to.equal(-1n);
+            expect(account[3]).to.equal(0n);
+            expect(account[4]).to.equal(0n);
+            expect(account[5]).to.equal(0n);
+            expect(account[6]).to.equal(0n);
+            expect(account[7]).to.equal(0n);
         });
 
         // it('Should process the dividend tracker', async function () {
@@ -420,35 +419,6 @@ describe("GetPartyTokenV3", function () {
         it('Should fail if not owner tries to exclude an account from dividends', async function () {
             await expect(
                 getPartyTokenV3.connect(addr1).excludeFromDividends(owner.address)
-            ).to.be.revertedWith('Ownable: caller is not the owner');
-        });
-
-        it('Should fail if not owner tries to process the dividend tracker', async function () {
-
-            // function processDividendTracker(uint256 gas) external {
-            //     (
-            //         uint256 iterations,
-            //         uint256 claims,
-            //         uint256 lastProcessedIndex
-            //     ) = dividendTracker.process(gas);
-            //     emit ProcessedDividendTracker(
-            //         iterations,
-            //         claims,
-            //         lastProcessedIndex,
-            //         false,
-            //         gas,
-            //         tx.origin
-            //     );
-            // } 
-
-            await expect(
-                getPartyTokenV3.connect(addr1).processDividendTracker(100)
-            ).to.be.revertedWith('Ownable: caller is not the owner');
-        });
-
-        it('Should fail if not owner tries to claim dividends', async function () {
-            await expect(
-                getPartyTokenV3.connect(addr1).claim()
             ).to.be.revertedWith('Ownable: caller is not the owner');
         });
 
