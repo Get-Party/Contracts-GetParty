@@ -21,7 +21,7 @@ import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 // Locally developed imports
-import "./DividendPayingToken.sol";
+import "./DividendTracker.sol";
 
 contract GetPartyTokenV3 is ERC20, Ownable {
     uint256 private liquidityFeeOnBuy;
@@ -138,7 +138,7 @@ contract GetPartyTokenV3 is ERC20, Ownable {
             address(0x407993575c91ce7643a4d4cCACc9A98c36eE1BBE)
         ] = true;
 
-        _mint(owner(), 1_000_000_000 * (10 ** 9));
+        _mint(owner(), 100_000_000 * (10 ** 9));
         swapTokensAtAmount = totalSupply() / 5000;
     }
 

@@ -1,17 +1,17 @@
 async function main() {
+
+
+
     const IterableMapping = await ethers.getContractFactory("IterableMapping");
-    const iterableMapping = await IterableMapping.deploy() | await IterableMapping.deployed();
-
-    console.log("IterableMapping deployed to:", iterableMapping.address);
-
+    const iterableMapping = await IterableMapping.deploy();
     const GetPartyTokenV3 = await ethers.getContractFactory("GetPartyTokenV3", {
         libraries: {
-            typedef: iterableMapping.address
-        }
+            IterableMapping: iterableMapping,
+        },
     });
-    const getPartyTokenV3 = await GetPartyTokenV3.deploy(iterableMapping.address) | await GetPartyTokenV3.deployed();
-
-    console.log("GetPartyTokenV3 deployed to:", getPartyTokenV3.address);
+    const getPartyTokenV3 = await GetPartyTokenV3.deploy();
+    const contractAddress = await getPartyTokenV3.getAddress();
+    console.log("GetPartyTokenV3 deployed to:", contractAddress);
 }
 
 main()
