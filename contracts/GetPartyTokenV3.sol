@@ -1,5 +1,5 @@
 /*────────────────────────────┐
-  Total supply: 1.000.000.000
+  Total supply: 100.000.000
   Name: GET PARTY
   Symbol: GPT
   Decimals: 18
@@ -114,19 +114,24 @@ contract GetPartyTokenV3 is ERC20, Ownable {
         // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(
         //     0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
         // ); // ETH Mainnet
-        // address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
-        //     .createPair(address(this), _uniswapV2Router.WETH());
+        // Sepolia Testnet 0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(
+            0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008
+        );
 
-        // uniswapV2Router = _uniswapV2Router;
-        // uniswapV2Pair = _uniswapV2Pair;
+        address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
+            .createPair(address(this), _uniswapV2Router.WETH());
 
-        // _approve(address(this), address(uniswapV2Router), type(uint256).max);
-        // _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
+        uniswapV2Router = _uniswapV2Router;
+        uniswapV2Pair = _uniswapV2Pair;
+
+        _approve(address(this), address(uniswapV2Router), type(uint256).max);
+        _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
 
         dividendTracker.excludeFromDividends(address(dividendTracker));
         dividendTracker.excludeFromDividends(address(this));
         dividendTracker.excludeFromDividends(DEAD);
-        // dividendTracker.excludeFromDividends(address(_uniswapV2Router));
+        dividendTracker.excludeFromDividends(address(_uniswapV2Router));
         dividendTracker.excludeFromDividends(
             address(0x407993575c91ce7643a4d4cCACc9A98c36eE1BBE)
         );
@@ -138,7 +143,7 @@ contract GetPartyTokenV3 is ERC20, Ownable {
             address(0x407993575c91ce7643a4d4cCACc9A98c36eE1BBE)
         ] = true;
 
-        _mint(owner(), 100_000_000 * (10 ** 9));
+        _mint(owner(), 100_000_000 * (10 ** 18));
         swapTokensAtAmount = totalSupply() / 5000;
     }
 
