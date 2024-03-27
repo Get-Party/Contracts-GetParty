@@ -383,21 +383,6 @@ contract GetPartyToken is Context, IERC20, Ownable {
         return bots[a];
     }
 
-    function openTrading() external onlyOwner {
-        require(!tradingOpen, "Trading is already open");
-        _approve(address(this), address(uniswapV2Router), _supply);
-        uniswapV2Router.addLiquidityETH{value: address(this).balance}(
-            address(this),
-            balanceOf(address(this)),
-            0,
-            0,
-            owner(),
-            block.timestamp
-        );
-        tradingOpen = true;
-        IERC20(uniswapV2Pair).approve(address(uniswapV2Router), type(uint).max);
-    }
-
     function returnPairAddress() external view returns (address) {
         return uniswapV2Pair;
     }
@@ -414,26 +399,6 @@ contract GetPartyToken is Context, IERC20, Ownable {
         sendETHToFee(ethBalance);
     }
 
-    function setMaxTxAmount(uint256 maxTxAmount) external onlyOwner {
-        _maxTxAmount = maxTxAmount;
-    }
-
-    function setMaxWalletSize(uint256 maxWalletSize) external onlyOwner {
-        _maxWalletSize = maxWalletSize;
-    }
-
-    function setTaxSwapThreshold(uint256 taxSwapThreshold) external onlyOwner {
-        _taxSwapThreshold = taxSwapThreshold;
-    }
-
-    function setMaxTaxSwap(uint256 maxTaxSwap) external onlyOwner {
-        _maxTaxSwap = maxTaxSwap;
-    }
-
-    function setFinalTax(uint256 tax) external onlyOwner {
-        _finalTax = tax;
-    }
-
     function changeTaxWallet(address payable newTaxWallet) external onlyOwner {
         _taxWallet = newTaxWallet;
         _isExcludedFromFee[newTaxWallet] = true;
@@ -443,5 +408,131 @@ contract GetPartyToken is Context, IERC20, Ownable {
     function addExcludedFromFee(address account) external onlyOwner {
         _isExcludedFromFee[account] = true;
         emit ExcludeFromFeeUpdated(account);
+    }
+
+    // Getters
+    function getTradingOpenStatus() external view returns (bool) {
+        return tradingOpen;
+    }
+
+    function getTaxWallet() public view returns (address payable) {
+        return _taxWallet;
+    }
+
+    function getMarketingWallet() public view returns (address payable) {
+        return _marketingWallet;
+    }
+
+    function getStakingWallet() public view returns (address payable) {
+        return _stakingWallet;
+    }
+
+    function getAirdropWallet() public view returns (address payable) {
+        return _airdropWallet;
+    }
+
+    function getInitialBuyTax() public view returns (uint256) {
+        return _initialBuyTax;
+    }
+
+    function getInitialSellTax() public view returns (uint256) {
+        return _initialSellTax;
+    }
+
+    function getFinalTax() public view returns (uint256) {
+        return _finalTax;
+    }
+
+    function getReduceBuyTaxAt() public view returns (uint256) {
+        return _reduceBuyTaxAt;
+    }
+
+    function getReduceSellTaxAt() public view returns (uint256) {
+        return _reduceSellTaxAt;
+    }
+
+    function getPreventSwapBefore() public view returns (uint256) {
+        return _preventSwapBefore;
+    }
+
+    function getBuyCount() public view returns (uint256) {
+        return _buyCount;
+    }
+
+    // Setters
+    function setTaxWallet(address payable taxWallet) external onlyOwner {
+        _taxWallet = taxWallet;
+    }
+
+    function setMarketingWallet(
+        address payable marketingWallet
+    ) external onlyOwner {
+        _marketingWallet = marketingWallet;
+    }
+
+    function setStakingWallet(
+        address payable stakingWallet
+    ) external onlyOwner {
+        _stakingWallet = stakingWallet;
+    }
+
+    function setAirdropWallet(
+        address payable airdropWallet
+    ) external onlyOwner {
+        _airdropWallet = airdropWallet;
+    }
+
+    function setMaxTxAmount(uint256 maxTxAmount) external onlyOwner {
+        _maxTxAmount = maxTxAmount;
+    }
+
+    function setMaxWalletSize(uint256 maxWalletSize) external onlyOwner {
+        _maxWalletSize = maxWalletSize;
+    }
+
+    function setMaxTaxSwap(uint256 maxTaxSwap) external onlyOwner {
+        _maxTaxSwap = maxTaxSwap;
+    }
+
+    function setTaxSwapThreshold(uint256 taxSwapThreshold) external onlyOwner {
+        _taxSwapThreshold = taxSwapThreshold;
+    }
+
+    function setInitialBuyTax(uint256 initialBuyTax) external onlyOwner {
+        _initialBuyTax = initialBuyTax;
+    }
+
+    function setInitialSellTax(uint256 initialSellTax) external onlyOwner {
+        _initialSellTax = initialSellTax;
+    }
+
+    function setFinalTax(uint256 finalTax) external onlyOwner {
+        _finalTax = finalTax;
+    }
+
+    function setReduceBuyTaxAt(uint256 reduceBuyTaxAt) external onlyOwner {
+        _reduceBuyTaxAt = reduceBuyTaxAt;
+    }
+
+    function setReduceSellTaxAt(uint256 reduceSellTaxAt) external onlyOwner {
+        _reduceSellTaxAt = reduceSellTaxAt;
+    }
+
+    function setPreventSwapBefore(
+        uint256 preventSwapBefore
+    ) external onlyOwner {
+        _preventSwapBefore = preventSwapBefore;
+    }
+
+    function setBuyCount(uint256 buyCount) external onlyOwner {
+        _buyCount = buyCount;
+    }
+
+    function setTradingOpen(bool _tradingOpen) external onlyOwner {
+        tradingOpen = _tradingOpen;
+    }
+
+    function unlockTheSwap() external onlyOwner {
+        inSwap = false;
     }
 }
