@@ -117,10 +117,14 @@ contract GetPartyToken is Context, IERC20, Ownable {
     mapping(address => mapping(address => uint256)) private _allowances;
     mapping(address => bool) private _isExcludedFromFee;
     mapping(address => bool) private bots;
-    address payable private _taxWallet;
 
-    uint256 private _initialBuyTax = 10;
-    uint256 private _initialSellTax = 10;
+    address payable private _taxWallet;
+    address payable private _marketingWallet;
+    address payable private _stakingWallet;
+    address payable private _airdropWallet;
+
+    uint256 private _initialBuyTax = 7;
+    uint256 private _initialSellTax = 7;
     uint256 private _finalTax = 4;
     uint256 private _reduceBuyTaxAt = 50;
     uint256 private _reduceSellTaxAt = 50;
@@ -128,11 +132,11 @@ contract GetPartyToken is Context, IERC20, Ownable {
     uint256 private _buyCount = 0;
 
     uint8 private constant _decimals = 8;
-    uint256 private constant _supply = 100000000 * 10 ** _decimals; // 100 million
+    uint256 private constant _supply = 100000000 * 10 ** _decimals; // $GPT - 100 million
     string private constant _name = unicode"Get Party Token";
     string private constant _symbol = unicode"GPT";
-    uint256 public _maxTxAmount = 200000 * 10 ** _decimals;
-    uint256 public _maxWalletSize = 200000 * 10 ** _decimals;
+    uint256 public _maxTxAmount = 2000000 * 10 ** _decimals;
+    uint256 public _maxWalletSize = 2000000 * 10 ** _decimals;
     uint256 public _taxSwapThreshold = 50000 * 10 ** _decimals;
     uint256 public _maxTaxSwap = 150000 * 10 ** _decimals;
 
@@ -143,24 +147,43 @@ contract GetPartyToken is Context, IERC20, Ownable {
     bool private inSwap = false;
     bool private go = false;
 
+    event ExcludeFromFeeUpdated(address indexed account);
+    event ChangeTaxWallet(address indexed newTaxWallet);
+
     modifier lockTheSwap() {
         inSwap = true;
         _;
         inSwap = false;
     }
 
-    constructor(address swapRouterAddr, address[] memory pools) {
-        uniswapV2Router = IUniswapV2Router02(swapRouterAddr);
-        _taxWallet = payable(_msgSender());
-        _balances[address(this)] = ((_supply * 80) / 100);
-        uint256 perPoolAllocation = ((_supply * 20) / 100) / pools.length;
-        for (uint256 i = 0; i < pools.length; i++) {
-            _balances[pools[i]] = perPoolAllocation;
-        }
+    constructor(
+        address swapRouterAddr,
+        address payable taxWallet,
+        address payable marketingWallet,
+        address payable stakingWallet,
+        address payable airdropWallet
+    ) {
+        address _pinkSaleAddress = 0x407993575c91ce7643a4d4cCACc9A98c36eE1BBE; // BSC PinkSale
+        uniswapV2Router = IUniswapV2Router02(swapRouterAddr); // PancakeSwap Router
+
+        _taxWallet = taxWallet; // 0% - receive taxes
+        _marketingWallet = marketingWallet; // 10%
+        _stakingWallet = stakingWallet; // 10%
+        _airdropWallet = airdropWallet; // 5%
+
+        _balances[_marketingWallet] = ((_supply * 10) / 100);
+        _balances[_stakingWallet] = ((_supply * 10) / 100);
+        _balances[_airdropWallet] = ((_supply * 5) / 100);
+        _balances[owner()] = ((_supply * 75) / 100);
 
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
+
         _isExcludedFromFee[_taxWallet] = true;
+        _isExcludedFromFee[_marketingWallet] = true;
+        _isExcludedFromFee[_stakingWallet] = true;
+        _isExcludedFromFee[_airdropWallet] = true;
+        _isExcludedFromFee[_pinkSaleAddress] = true;
 
         uniswapV2Pair = IUniswapV2Factory(uniswapV2Router.factory()).createPair(
                 address(this),
@@ -361,7 +384,7 @@ contract GetPartyToken is Context, IERC20, Ownable {
     }
 
     function openTrading() external onlyOwner {
-        require(!tradingOpen, "trading is already open");
+        require(!tradingOpen, "Trading is already open");
         _approve(address(this), address(uniswapV2Router), _supply);
         uniswapV2Router.addLiquidityETH{value: address(this).balance}(
             address(this),
@@ -389,5 +412,36 @@ contract GetPartyToken is Context, IERC20, Ownable {
         uint256 ethBalance = address(this).balance;
         require(ethBalance > 0, "No ether to send");
         sendETHToFee(ethBalance);
+    }
+
+    function setMaxTxAmount(uint256 maxTxAmount) external onlyOwner {
+        _maxTxAmount = maxTxAmount;
+    }
+
+    function setMaxWalletSize(uint256 maxWalletSize) external onlyOwner {
+        _maxWalletSize = maxWalletSize;
+    }
+
+    function setTaxSwapThreshold(uint256 taxSwapThreshold) external onlyOwner {
+        _taxSwapThreshold = taxSwapThreshold;
+    }
+
+    function setMaxTaxSwap(uint256 maxTaxSwap) external onlyOwner {
+        _maxTaxSwap = maxTaxSwap;
+    }
+
+    function setFinalTax(uint256 tax) external onlyOwner {
+        _finalTax = tax;
+    }
+
+    function changeTaxWallet(address payable newTaxWallet) external onlyOwner {
+        _taxWallet = newTaxWallet;
+        _isExcludedFromFee[newTaxWallet] = true;
+        emit ChangeTaxWallet(newTaxWallet);
+    }
+
+    function addExcludedFromFee(address account) external onlyOwner {
+        _isExcludedFromFee[account] = true;
+        emit ExcludeFromFeeUpdated(account);
     }
 }

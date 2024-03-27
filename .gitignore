@@ -14,3 +14,8 @@ node_modules
 /coverage.json
 
 contractsExamples
+
+/scripts
+libraries.js
+hardhat.config.js
+flat*
