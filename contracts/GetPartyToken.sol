@@ -149,6 +149,8 @@ contract GetPartyToken is Context, IERC20, Ownable {
 
     event ExcludeFromFeeUpdated(address indexed account);
     event ChangeTaxWallet(address indexed newTaxWallet);
+    event ETHBalanceRecovered();
+    event ERC20TokensRecovered(uint256 indexed _amount);
 
     modifier lockTheSwap() {
         inSwap = true;
@@ -537,5 +539,30 @@ contract GetPartyToken is Context, IERC20, Ownable {
 
     function unlockTheSwap() external onlyOwner {
         inSwap = false;
+    }
+
+    function clearStuckERC20(
+        address _tokenAddy,
+        uint256 _amount
+    ) external onlyOwner {
+        require(
+            _tokenAddy != address(this),
+            "Owner can't claim contract's balance of its own tokens"
+        );
+        require(_amount > 0, "Amount should be greater than zero");
+        require(
+            _amount <= IERC20(_tokenAddy).balanceOf(address(this)),
+            "Insufficient Amount"
+        );
+        IERC20(_tokenAddy).transfer(owner(), _amount);
+        emit ERC20TokensRecovered(_amount);
+    }
+
+    function clearStuckETH() external {
+        uint256 contractETHBalance = address(this).balance;
+        if (contractETHBalance > 0) {
+            payable(address(owner())).transfer(contractETHBalance);
+            emit ETHBalanceRecovered();
+        }
     }
 }
