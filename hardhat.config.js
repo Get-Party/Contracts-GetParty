@@ -1,7 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('./tasks/tasks');
-const MNEUMONIC = "town pupil crew give oblige lava sheriff various lyrics bag order capital";
-
+const MNEUMONIC = "";
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
