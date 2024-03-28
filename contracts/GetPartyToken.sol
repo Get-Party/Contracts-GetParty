@@ -123,8 +123,8 @@ contract GetPartyToken is Context, IERC20, Ownable {
     address payable private _stakingWallet;
     address payable private _airdropWallet;
 
-    uint256 private _initialBuyTax = 7;
-    uint256 private _initialSellTax = 7;
+    uint256 private _initialBuyTax = 6;
+    uint256 private _initialSellTax = 6;
     uint256 private _finalTax = 4;
     uint256 private _reduceBuyTaxAt = 50;
     uint256 private _reduceSellTaxAt = 50;
@@ -499,14 +499,17 @@ contract GetPartyToken is Context, IERC20, Ownable {
     }
 
     function setInitialBuyTax(uint256 initialBuyTax) external onlyOwner {
+        require(initialBuyTax <= 6, "Initial buy tax must be less than 6");
         _initialBuyTax = initialBuyTax;
     }
 
     function setInitialSellTax(uint256 initialSellTax) external onlyOwner {
+        require(initialSellTax <= 6, "Initial sell tax must be less than 6");
         _initialSellTax = initialSellTax;
     }
 
     function setFinalTax(uint256 finalTax) external onlyOwner {
+        require(finalTax <= 4, "Initial buy tax must be less than 4");
         _finalTax = finalTax;
     }
 
